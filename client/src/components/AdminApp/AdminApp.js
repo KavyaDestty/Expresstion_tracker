@@ -6,7 +6,8 @@ import './AnalysisView.css';
 
 function AdminApp() {
   const [sessions, setSessions] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // For session list
+  const [isAnalysisLoading, setIsAnalysisLoading] = useState(false); // For analysis loading
   const [selectedSession, setSelectedSession] = useState(null);
   const [analysisData, setAnalysisData] = useState(null);
 
@@ -32,6 +33,7 @@ function AdminApp() {
 
   const handleSessionClick = async (sessionId) => {
     setSelectedSession(sessionId);
+    setIsAnalysisLoading(true);
     try {
       const response = await fetch(`http://localhost:5000/analyze/${sessionId}`);
       if (!response.ok) {
@@ -45,6 +47,8 @@ function AdminApp() {
       setAnalysisData(data);
     } catch (error) {
       console.error('Error analyzing session:', error);
+    } finally {
+      setIsAnalysisLoading(false);
     }
   };
 
@@ -53,16 +57,10 @@ function AdminApp() {
     setAnalysisData(null);
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
-
   const renderSessionsList = () => (
     <div className="sessions-list-container">
-      <h2>Admin Dashboard</h2>
-      <h3>Session List</h3>
+      <h2>Admin Dashboard 🏫</h2>
+      <h3>Session List 📋</h3>
       {isLoading ? (
         <p>Loading sessions...</p>
       ) : (
@@ -80,10 +78,10 @@ function AdminApp() {
               {sessions.map((user) => (
                 <React.Fragment key={user.username}>
                   {user.sessions.map((session, index) => (
-                    <tr key={session.sessionId}>
+                    <tr key={session.sessionId} className="session-row">
                       {index === 0 && (
                         <td rowSpan={user.sessions.length}>
-                          {user.username}
+                          {user.username} 👤
                         </td>
                       )}
                       <td>{session.sessionId}</td>
@@ -91,8 +89,9 @@ function AdminApp() {
                       <td>
                         <button
                           onClick={() => handleSessionClick(session.sessionId)}
+                          className="action-button"
                         >
-                          Get Analysis
+                          Get Analysis 🧐
                         </button>
                       </td>
                     </tr>
@@ -128,8 +127,8 @@ function AdminApp() {
         {
           label: 'Emotion Percentage',
           data: Object.values(emotions).map((v) => parseFloat(v)),
-          backgroundColor: '#4BC0C0',
-          borderColor: '#36A2EB',
+          backgroundColor: '#FFB6C1',
+          borderColor: '#FF69B4',
           borderWidth: 1,
         },
       ],
@@ -138,25 +137,32 @@ function AdminApp() {
     const options = {
       responsive: true,
       plugins: {
-        legend: {
-          position: 'top',
-        },
-        title: {
-          display: true,
-          text: 'Emotion Distribution',
-        },
+        legend: { position: 'top' },
+        title: { display: true, text: 'Emotion Distribution' },
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
+      scales: { y: { beginAtZero: true } },
     };
 
     return (
       <div className="bar-chart-container">
         <Bar data={data} options={options} />
       </div>
+    );
+  };
+
+  const renderAnalysis = () => {
+    if (isAnalysisLoading) {
+      return <p>Loading analysis, please wait... ⏳</p>;
+    }
+
+    return (
+      <>
+        {renderBarChart()}
+        {renderTable()}
+        <button onClick={handleBackToSessions} className="back-to-sessions-btn">
+          ← Back to Sessions
+        </button>
+      </>
     );
   };
 
@@ -168,9 +174,9 @@ function AdminApp() {
         <table className="analysis-table">
           <thead>
             <tr>
-              <th>Webcam Capture</th>
-              <th>Game Screenshot</th>
-              <th>Analysis</th>
+              <th>Webcam Capture 📸</th>
+              <th>Game Screenshot 🖼️</th>
+              <th>Analysis 📊</th>
             </tr>
           </thead>
           <tbody>
@@ -193,7 +199,7 @@ function AdminApp() {
                   />
                 </td>
                 <td className="analysis-data">
-                  <h4>Emotion Analysis:</h4>
+                  <h4>Emotion Analysis 🧠:</h4>
                   {Object.entries(analysis.emotions).map(([emotion, value]) => (
                     <div key={emotion} className="emotion-item">
                       <span>{emotion}:</span>
@@ -201,7 +207,7 @@ function AdminApp() {
                     </div>
                   ))}
                   <div className="dominant-emotion">
-                    <strong>Dominant Emotion: </strong>
+                    <strong>Dominant Emotion 😎: </strong>
                     <span>{analysis.dominantEmotion}</span>
                   </div>
                 </td>
@@ -216,17 +222,7 @@ function AdminApp() {
   return (
     <div className="admin-app-container">
       <div className="content-container">
-        {selectedSession ? (
-          <>
-            {renderBarChart()}
-            {renderTable()}
-            <button onClick={handleBackToSessions} className="back-to-sessions-btn">
-              ← Back to Sessions
-            </button>
-          </>
-        ) : (
-          renderSessionsList()
-        )}
+        {selectedSession ? renderAnalysis() : renderSessionsList()}
       </div>
     </div>
   );

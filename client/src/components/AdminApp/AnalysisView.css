@@ -1,3 +1,18 @@
+/* Loading Message Styles */
+/* Loading Message Styles */
+.loading-message {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Centers vertically */
+  font-size: 3rem; /* Bigger font size */
+  font-weight: 900; /* Extra bold text */
+  text-align: center; /* Center aligns the text */
+  color: #6a1b9a; /* Vibrant purple color */
+  height: 100vh; /* Full height of the viewport */
+  margin: 0; /* Remove margins */
+  background-color: #f9f9f9; /* Optional: Add a light background for contrast */
+}
+
 
 /* Layout for Content */
 .content-container {
@@ -26,7 +41,7 @@
   height: auto;
   min-height: 300px;
   margin-top: 6px;
-  margin-right:-10px;
+  margin-right: -10px;
 }
 
 .bar-chart-container canvas {
